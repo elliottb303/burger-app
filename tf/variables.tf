@@ -16,7 +16,7 @@ variable "aws_region" {
   default = "us-west-2"
 }
 
-# Ubuntu Precise 12.04 LTS (x64)
+# Amazon Linux (x64)
 variable "aws_amis" {
   default = {
     us-west-2 = "ami-01fee56b22f308154"

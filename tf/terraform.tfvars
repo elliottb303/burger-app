@@ -1,2 +1,2 @@
-key_name        = "terraform-provider-aws-dev"
-public_key_path = "/Users/tdadmin/.ssh/aws_dev.pub"
+key_name        = "aws_dev"
+public_key_path = "<local_filepath>"

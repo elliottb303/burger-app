@@ -32,7 +32,7 @@ resource "aws_subnet" "default" {
 
 # A security group for the ELB so it is accessible via the web
 resource "aws_security_group" "elb" {
-  name = "terraform_example_elb"
+  name = "terraform_burger-app_elb"
   description = "Used in the terraform"
   vpc_id = aws_vpc.default.id
 
@@ -58,7 +58,7 @@ resource "aws_security_group" "elb" {
 # Our default security group to access
 # the instances over SSH and HTTP
 resource "aws_security_group" "default" {
-  name = "terraform_example"
+  name = "terraform_burger-app"
   description = "Used in the terraform"
   vpc_id = aws_vpc.default.id
 
@@ -74,7 +74,7 @@ resource "aws_security_group" "default" {
   # HTTP access from the VPC
   ingress {
     from_port = 80
-    to_port = 80
+    to_port = 8080
     protocol = "tcp"
     cidr_blocks = [
       "10.0.0.0/16"]
@@ -90,8 +90,40 @@ resource "aws_security_group" "default" {
   }
 }
 
+# ACM cert and self-signed cert options not implemented without known domain.
+//resource "aws_acm_certificate" "cert" {
+//  domain_name       = "example.com"
+//  validation_method = "DNS"
+//
+//  tags = {
+//    Environment = "test"
+//  }
+//
+//  lifecycle {
+//    create_before_destroy = true
+//  }
+//}
+//
+//resource "tls_self_signed_cert" "example" {
+//  key_algorithm   = "ECDSA"
+//  private_key_pem = "${file(\"private_key.pem\")}"
+//
+//  subject {
+//    common_name  = "example.com"
+//    organization = "ACME Examples, Inc"
+//  }
+//
+//  validity_period_hours = 12
+//
+//  allowed_uses = [
+//    "key_encipherment",
+//    "digital_signature",
+//    "server_auth",
+//  ]
+//}
+
 resource "aws_elb" "web" {
-  name = "terraform-example-elb"
+  name = "burger-app-elb"
 
   subnets = [
     aws_subnet.default.id]
@@ -101,7 +133,7 @@ resource "aws_elb" "web" {
     aws_instance.web.id]
 
   listener {
-    instance_port = 80
+    instance_port = 8080
     instance_protocol = "http"
     lb_port = 80
     lb_protocol = "http"
@@ -144,7 +176,7 @@ resource "aws_instance" "web" {
 
   # copy script with provisioner
   provisioner "file" {
-    source      = "Dockerfile"
+    source      = "../Dockerfile"
     destination = "~/Dockerfile"
   }
 
@@ -154,13 +186,13 @@ resource "aws_instance" "web" {
   provisioner "remote-exec" {
     inline = [
       "sudo yum update -y",
-      "sudo yum install docker",
+      "sudo yum install docker -y",
+      "sudo yum install git -y",
       "sudo service docker start",
       "sudo usermod -a -G docker ec2-user",
-      "git clone git@github.com:rearc/quest.git",
-      "docker build -t quest .",
-      "docker run -p 8080:80 quest"
-
+      "git clone https://github.com/rearc/quest.git",
+      "sudo docker build --build-arg SECRET_WORD='TwelveFactor' -t quest .",
+      "sudo docker run -p 8080:3000 -d quest"
     ]
   }
 }
