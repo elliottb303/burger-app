@@ -1,15 +1,15 @@
 # burger-app
 Basic Terraform deploy of dockerized app
 
-With terraform AWS credentials set correctly, these commands will pull up the demo in AWS:
+With terraform AWS credentials set correctly, these commands will pull up the demo in AWS. From TF directory, run:
 
 
-terraform plan
+`terraform plan`
 
-terraform deploy
+`terraform deploy`
 
 
 When complete, tear down.
 
 
-terraform destroy
+`terraform destroy`
